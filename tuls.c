@@ -8,39 +8,37 @@
 
 
 
-void dirwalk(char *pathwalk){
+void dirwalk(const char *pathwalk) {
+    int pathlength = strlen(pathwalk);
 
-int  pathlength=strlen(pathwalk);
-//char *path= (char *)malloc(sizeof(char)*pathlength);
+    struct dirent **namelist;
+    struct stat st;
+    int n;
 
-//strcpy(path,pathwalk);
+    n = scandir(pathwalk, &namelist, NULL, alphasort);
 
-struct dirent **namelist;    // intialize struct type that will be used in scandir method to go through directories
-struct stat st;
-int n; 
-
-n=scandir(pathwalk,&namelist,NULL,alphasort); //returns number of directories in stream
-
-if (n == -1) {
-     perror("scandir");
-     exit(EXIT_FAILURE);
-             }
-for ( int i=0; i<n;i++)
-    {
-        printf(namelist[i]->d_name);
-        char *newdirectName= namelist[i]->d_name+"/";
-        int newLen=strlen(newdirectName);
-        char *newpath= malloc(sizeof(char)*pathlength+newLen+1);
-        newpath=strcat(path,newpath);
-        if (stat(newpath,&st)==0){
-              if (S_ISDIR(st.st_mode)) {
-                dirwalk(newpath);
-
-        }
-
-       // printf("%s\n",namelist[i]->d_name);
-        //free(namelist[n]);
+    if (n == -1) {
+        perror("scandir");
+        exit(EXIT_FAILURE);
     }
+
+    for (int i = 0; i < n; i++) {
+        printf("%s\n", namelist[i]->d_name);
+        char *newpath = malloc(pathlength + strlen(namelist[i]->d_name) + 2); // +2 for '/' and null terminator
+        strcpy(newpath, pathwalk);
+        strcat(newpath, "/");
+        strcat(newpath, namelist[i]->d_name);
+        
+        if (stat(newpath, &st) == 0) {
+            if (S_ISDIR(st.st_mode)) {
+                dirwalk(newpath);
+            }
+        }
+        
+        free(newpath);
+    }
+
+    free(namelist);
 }
 
 
@@ -53,7 +51,13 @@ for ( int i=0; i<n;i++)
 
 
 
-}
+
+
+
+
+
+
+
 
 int main(int argc, char *argv[]){
 char *pathname="/Users/animohene/Desktop/3207 C Projects/Project 0";
@@ -79,6 +83,13 @@ if (n == -1) {
 for ( int i=0; i<n;i++)
     {
         printf("%s\n",namelist[i]->d_name);
+        if (argc==2 && namelist[i]->d_name){
+            char *newpath= malloc(sizeof(char)*(pathlength+strlen(namelist[i]->d_name)+2));
+            strcpy(newpath,pathname);
+            strcat(newpath,"/");
+            strcat(newpath,namelist[i]->d_name);
+            dirkwalk(newpath);
+        }
         free(namelist[n]);
     }
 }
@@ -86,7 +97,7 @@ for ( int i=0; i<n;i++)
 
 else{
 
-f (n == -1) {
+if (n == -1) {
      perror("scandir"); //if none perror
      exit(EXIT_FAILURE);
              }
@@ -98,12 +109,11 @@ for ( int i=0; i<n;i++)
 }
 
 
-
-
-
-}
-
-
-
     return 0;
+
+
 }
+
+
+
+
