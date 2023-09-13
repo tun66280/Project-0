@@ -25,7 +25,7 @@ int n=scandir(path,&namelist,NULL,alphasort); // returns the number of dirent ob
         }
         printf("%s\n ", namelist[i]->d_name); // we print the directory or file within the stream
         
-        if(numArguments==2) // if we have two arguments
+        if(numArguments>1) // if we have two arguments
        
             if (stat(fullpath,&stbuf)==0){ //  we put the information of our directory into stbuf
 
