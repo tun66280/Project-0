@@ -7,7 +7,9 @@
 #include <sys/stat.h>
 #include <limits.h> 
 
-void dirwalk(const char *path){
+static int istarget=0;
+
+void dirwalk(const char *path,char *argument,int numArguments){
 struct dirent **namelist;
 struct stat stbuf;
 int n=scandir(path,&namelist,NULL,alphasort);
@@ -21,15 +23,28 @@ int n=scandir(path,&namelist,NULL,alphasort);
         if(strcmp(namelist[i]->d_name,".")==0 || strcmp(namelist[i]->d_name,"..")==0 || strcmp(namelist[i]->d_name,".git")==0){
             continue;
         }
-        printf("%s ", namelist[i]->d_name);
+        printf("%s\n ", namelist[i]->d_name);
+        
+        if(numArguments==2)
+       
+            if (stat(fullpath,&stbuf)==0){
 
-        if (stat(fullpath,&stbuf)==0){
-        if((S_ISDIR(stbuf.st_mode))){
-            printf("%s","directory! \n");
+                if(strcmp(argument,namelist[i]->d_name)==0){
+                    istarget=1;
+                }
 
-        }
-        else{printf("%s","file www \n" );}
-        }
+
+
+
+                    if(istarget==1){
+                    if((S_ISDIR(stbuf.st_mode))){
+                     //   printf("%s am a directory \n",namelist[i]->d_name);
+                        dirwalk(fullpath,argument,numArguments);
+
+                    }
+                    //else{printf}
+                }
+            }
         free(namelist[i]);
     }
 
@@ -40,9 +55,9 @@ int n=scandir(path,&namelist,NULL,alphasort);
 
 
 
-int main(){
-
-dirwalk(".");
+int main(int argc, char **argv ){
+//printf("%d",argc);
+dirwalk(".",argv[1],argc);
 
     return 0;
 }
